@@ -1,4 +1,12 @@
 <?php
+/**
+ * Settings page
+ *
+ * @package    local_ai_connect
+ * @copyright  2023 Enovation
+ * @author Olgierd Dziminski
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 defined('MOODLE_INTERNAL') || die();
 

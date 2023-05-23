@@ -13,6 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Test page
+ *
+ * @package    local_ai_connect
+ * @copyright  2023 Enovation
+ * @author Olgierd Dziminski
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace local_ai_connector;
 
 require_once(__DIR__ . '/../../config.php');
@@ -29,10 +39,10 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG, $PAGE;
 
 $ai = new ai\ai();
-$gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
+//$gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
 
 // Check $gptresult
-$dalletest = $ai->prompt_dalle('angry goose');
+//$dalletest = $ai->prompt_dalle('angry goose');
 $stablediffusiontest = $ai->prompt_stable_diffusion('Happy chihuahas');
 
 $services = [

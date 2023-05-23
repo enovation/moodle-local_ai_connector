@@ -13,6 +13,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/**
+ * AI class
+ *
+ * @package    local_ai_connect
+ * @copyright  2023 Enovation
+ * @author Olgierd Dziminski
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 namespace local_ai_connector\ai;
 
 use curl;
@@ -23,9 +31,9 @@ class ai {
     const OPENAI_CHATGPT_COMPLETION_ENDPOINT = 'https://api.openai.com/v1/completions';
 
     private string $openaiapikey;
-    
+
     private string $deepaiapikey;
-    
+
     private $model;
     private float $temperature;
 
@@ -88,7 +96,7 @@ class ai {
         ];
 
         $result = $this->make_request($this::OPENAI_CHATGPT_COMPLETION_ENDPOINT, $data, $this->openaiapikey);
-var_dump($result); die();
+//var_dump($result); die();
 
         // Check if error is there.
         if (isset($result['error'])) {
@@ -100,7 +108,7 @@ var_dump($result); die();
             return $result['choices'][0]['text'];
         } else {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
-                '[ChatGPT] Prompt error occurred. Check the API key you provided.');
+                '[ChatGPT] Prompt error occurred: ' . $result['error']['message']);
         }
     }
 
@@ -123,7 +131,7 @@ var_dump($result); die();
             return $result['data'][0]['url'];
         } else {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
-                '[DALL-E] Prompt error occurred. Check the API key you provided.');
+                '[DALL-E] Prompt error occurred: ' . $result['error']['message']);
         }
     }
 
@@ -135,7 +143,6 @@ var_dump($result); die();
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
                 'Empty Stable Diffusion API key.');
         }
-
         $curl = new curl();
 
         $curl->setHeader([
@@ -143,13 +150,14 @@ var_dump($result); die();
         ]);
         $curl->setOpt(CURLOPT_RETURNTRANSFER);
         $result = $curl->post('https://api.deepai.org/api/stable-diffusion', ['text' => $prompttext]);
+
         $result = json_decode($result);
 
         if (isset($result->output_url)) {
             return $result->output_url;
         } else {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
-                '[Stable Diffusion] Prompt error occurred. Check the API key you provided.');
+                "[Stable Diffusion] Prompt error occurred: . $result->status");
         }
     }
 
