@@ -96,7 +96,6 @@ class ai {
         ];
 
         $result = $this->make_request($this::OPENAI_CHATGPT_COMPLETION_ENDPOINT, $data, $this->openaiapikey);
-//var_dump($result); die();
 
         // Check if error is there.
         if (isset($result['error'])) {

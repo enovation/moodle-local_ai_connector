@@ -39,10 +39,10 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG, $PAGE;
 
 $ai = new ai\ai();
-//$gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
+$gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
 
 // Check $gptresult
-//$dalletest = $ai->prompt_dalle('angry goose');
+$dalletest = $ai->prompt_dalle('angry goose');
 $stablediffusiontest = $ai->prompt_stable_diffusion('Happy chihuahas');
 
 $services = [
