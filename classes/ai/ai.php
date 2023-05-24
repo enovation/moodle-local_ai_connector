@@ -73,17 +73,10 @@ class ai {
 
         $response = $curl->post($url, json_encode($data), $options);
 
-        // @TODO basic validation and check that the response is valid JSON
+        // TODO basic validation and check that the response is valid JSON.
         return json_decode($response, true);
     }
 
-/*
- *   -d '{
-     "model": "gpt-3.5-turbo",
-     "messages": [{"role": "user", "content": "Say this is a test!"}],
-     "temperature": 0.7
-   }'
- */
     public function prompt_completion($prompttext) {
         if (empty($this->model)) {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null, 'Empty query model.');
