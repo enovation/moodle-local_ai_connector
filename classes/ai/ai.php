@@ -46,8 +46,7 @@ class ai {
      */
 
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->openaiapikey = get_config('local_ai_connector', 'openaiapikey');
         $this->deepaiapikey = get_config('local_ai_connector', 'deepaiapikey');
         $this->model = get_config('local_ai_connector', 'model');
@@ -57,8 +56,7 @@ class ai {
     /**
      * @throws moodle_exception
      */
-    private function make_request($url, $data, $apikey)
-    {
+    private function make_request($url, $data, $apikey) {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
 
@@ -79,7 +77,7 @@ class ai {
         ];
 
         $response = $curl->post($url, json_encode($data), $options);
-        if (json_decode($response) == null){
+        if (json_decode($response) == null) {
             return ['curl_error' => $response];
         }
         return json_decode($response, true);
@@ -100,8 +98,7 @@ class ai {
         }
     }
 
-    private function getprompturl($model)
-    {
+    private function getprompturl($model) {
         $chatcompletionmodels = ["gpt-4", "gpt-4-0314", "gpt-4-32k", "gpt-4-32k-0314", "gpt-3.5-turbo", "gpt-3.5-turbo-0301"];
 
         if (in_array($model, $chatcompletionmodels)) {
@@ -111,9 +108,8 @@ class ai {
         }
     }
 
-    private function getpromptdata($url, $prompttext)
-    {
-        if ($url == self::OPENAI_CHATGPT_CHAT_ENDPOINT){
+    private function getpromptdata($url, $prompttext) {
+        if ($url == self::OPENAI_CHATGPT_CHAT_ENDPOINT) {
             $data = [
                 'model' => $this->model,
                 'temperature' => $this->temperature,
@@ -148,7 +144,9 @@ class ai {
         if (isset($result)) {
             if (isset($result['data'])) {
                 return $result['data'][0]['url'];
-            } else return $result['error'] ?? $result;
+            } else {
+                return $result['error'] ?? $result;
+            }
         }
     }
 
@@ -167,7 +165,7 @@ class ai {
         ]);
         $curl->setOpt(CURLOPT_RETURNTRANSFER);
         $result = $curl->post(self::STABLE_DIFFUSION_ENDPOINT, ['text' => $prompttext]);
-        if (json_decode($result) == null){
+        if (json_decode($result) == null) {
             return ['curl_error' => $result];
         }
 

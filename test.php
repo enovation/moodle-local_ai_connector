@@ -49,20 +49,32 @@ if ($gptresult && !isset($gptresult['curl_error'])) {
         $gptinfo .= "Error type: " . $gptresult['error']['type'] . "</br>";
         $gptinfo .= "Param: " . $gptresult['error']['param'] . "</br>";
         $gptinfo .= "Code: " . $gptresult['error']['code'] . "</br>";
-    } else $gptinfo = "Active";
-} else $gptinfo = "Inactive, cURL error: " . $gptresult['curl_error'];
+    } else {
+        $gptinfo = "Active";
+    }
+} else {
+    $gptinfo = "Inactive, cURL error: " . $gptresult['curl_error'];
+}
 
 if ($dalleresult && !isset($dalleresult['curl_error'])) {
     if (isset($dalleresult['error'])) {
         $dalleinfo = "Inactive, error message: " . $dalleresult['error'];
-    } else $dalleinfo = "Active </br>";
-} else $dalleinfo = "Inactive, cURL error: " . $dalleresult['curl_error'];
+    } else {
+        $dalleinfo = "Active </br>";
+    }
+} else {
+    $dalleinfo = "Inactive, cURL error: " . $dalleresult['curl_error'];
+}
 
 if ($stablediffusionresult && !isset($stablediffusionresult->curl_error)) {
     if (isset($stablediffusionresult->status)) {
         $stablediffusioninfo = "Inactive, error message: " . $stablediffusionresult->status;
-    } else $stablediffusioninfo = "Active </br>";
-} else $stablediffusioninfo = "Inactive, cURL error: " . $stablediffusionresult['curl_error'];
+    } else {
+        $stablediffusioninfo = "Active </br>";
+    }
+} else {
+    $stablediffusioninfo = "Inactive, cURL error: " . $stablediffusionresult['curl_error'];
+}
 
 
 $PAGE->set_url('/local/ai_connector/classes/ai/test.php');
@@ -87,4 +99,3 @@ echo $OUTPUT->header();
 
 <?php
 echo $OUTPUT->footer();
-?>
