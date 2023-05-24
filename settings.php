@@ -58,10 +58,14 @@ if ($hassiteconfig) {
             'gpt-4' => 'gpt-4',
             'gpt-4-0314' => 'gpt-4-0314',
             'gpt-4-32k' => 'gpt-4-32k',
-            'gpt-4-32k-0314' => 'gpt-4-32k-0314'
+            'gpt-4-32k-0314' => 'gpt-4-32k-0314',
+            'text-babbage-001' => 'text-babbage-001',
+            'text-ada-001' => 'text-ada-001',
+            'text-curie-001' => 'text-curie-001',
+            'text-davinci-002' => 'text-davinci-002',
+            'text-davinci-003' => 'text-davinci-003'
         ]
     ));
-
     $settings->add(new admin_setting_configtext(
         'local_ai_connector/temperature',
         get_string('temperature', 'local_ai_connector'),
