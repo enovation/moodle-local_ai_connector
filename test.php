@@ -40,11 +40,9 @@ global $CFG, $PAGE;
 
 $ai = new ai\ai();
 $gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
-//$dalleresult = $ai->prompt_dalle('angry goose');
-//$stablediffusionresult = $ai->prompt_stable_diffusion('Happy chihuahas');
-var_dump($gptresult);
-var_dump($dalleresult);
-var_dump($stablediffusionresult);
+$dalleresult = $ai->prompt_dalle('angry goose');
+$stablediffusionresult = $ai->prompt_stable_diffusion('Happy chihuahas');
+
 if ($gptresult && !isset($gptresult['curl_error'])) {
     if (isset($gptresult['error'])) {
         $gptinfo = "Inactive </br> Error message: " . $gptresult['error']['message'] . "</br>";

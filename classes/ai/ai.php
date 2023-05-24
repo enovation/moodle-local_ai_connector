@@ -44,7 +44,6 @@ class ai {
     /**
      * @var string Last query error.
      */
-    private ?string $error;
 
 
     public function __construct()
@@ -90,20 +89,46 @@ class ai {
         if (empty($this->model)) {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null, 'Empty query model.');
         }
-
-        $data = [
-            'model' => $this->model,
-            'temperature' => $this->temperature,
-            'prompt' => $prompttext,
-        ];
-
-        $result = $this->make_request($this::OPENAI_CHATGPT_COMPLETION_ENDPOINT, $data, $this->openaiapikey);
+        $url = self::getprompturl($this->model);
+        $data = self::getpromptdata($url, $prompttext);
+        $result = $this->make_request($url, $data, $this->openaiapikey);
 
         if (isset($result['choices'])) {
             return $result['choices'][0]['text'];
         } else {
             return $result;
         }
+    }
+
+    private function getprompturl($model)
+    {
+        $chatcompletionmodels = ["gpt-4", "gpt-4-0314", "gpt-4-32k", "gpt-4-32k-0314", "gpt-3.5-turbo", "gpt-3.5-turbo-0301"];
+
+        if (in_array($model, $chatcompletionmodels)) {
+            return self::OPENAI_CHATGPT_CHAT_ENDPOINT;
+        } else {
+            return self::OPENAI_CHATGPT_COMPLETION_ENDPOINT;
+        }
+    }
+
+    private function getpromptdata($url, $prompttext)
+    {
+        if ($url == self::OPENAI_CHATGPT_CHAT_ENDPOINT){
+            $data = [
+                'model' => $this->model,
+                'temperature' => $this->temperature,
+                'messages' => [
+                    ['role' => 'system', 'content' => 'You: ' . $prompttext],
+                ],
+            ];
+        } else {
+            $data = [
+                'model' => $this->model,
+                'temperature' => $this->temperature,
+                'prompt' => $prompttext,
+            ];
+        }
+        return $data;
     }
 
     public function prompt_dalle($prompttext, $image = null) {
@@ -146,8 +171,7 @@ class ai {
             return ['curl_error' => $result];
         }
 
-        $result = json_decode($result);
-        return $result;
+        return json_decode($result);
     }
 
 }
