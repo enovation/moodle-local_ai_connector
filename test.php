@@ -40,22 +40,53 @@ global $CFG, $PAGE;
 
 $ai = new ai\ai();
 $gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
+//$dalleresult = $ai->prompt_dalle('angry goose');
+//$stablediffusionresult = $ai->prompt_stable_diffusion('Happy chihuahas');
+var_dump($gptresult);
+var_dump($dalleresult);
+var_dump($stablediffusionresult);
+if ($gptresult && !isset($gptresult['curl_error'])) {
+    if (isset($gptresult['error'])) {
+        $gptinfo = "Inactive </br> Error message: " . $gptresult['error']['message'] . "</br>";
+        $gptinfo .= "Error type: " . $gptresult['error']['type'] . "</br>";
+        $gptinfo .= "Param: " . $gptresult['error']['param'] . "</br>";
+        $gptinfo .= "Code: " . $gptresult['error']['code'] . "</br>";
+    } else $gptinfo = "Active";
+} else $gptinfo = "Inactive, cURL error: " . $gptresult['curl_error'];
 
-// Check $gptresult.
-$dalletest = $ai->prompt_dalle('angry goose');
-$stablediffusiontest = $ai->prompt_stable_diffusion('Happy chihuahas');
+if ($dalleresult && !isset($dalleresult['curl_error'])) {
+    if (isset($dalleresult['error'])) {
+        $dalleinfo = "Inactive, error message: " . $dalleresult['error'];
+    } else $dalleinfo = "Active </br>";
+} else $dalleinfo = "Inactive, cURL error: " . $dalleresult['curl_error'];
 
-$services = [
-    'GPT' => (!isset($gptresult['error'])) ? 'Active' : 'Inactive',
-    'DALL-E' => isset($dalletest) ? 'Active' : 'Inactive',
-    'Stable_Diffusion' => isset($stablediffusiontest) ? 'Active' : 'Inactive'
-];
+if ($stablediffusionresult && !isset($stablediffusionresult->curl_error)) {
+    if (isset($stablediffusionresult->status)) {
+        $stablediffusioninfo = "Inactive, error message: " . $stablediffusionresult->status;
+    } else $stablediffusioninfo = "Active </br>";
+} else $stablediffusioninfo = "Inactive, cURL error: " . $stablediffusionresult['curl_error'];
 
 
 $PAGE->set_url('/local/ai_connector/classes/ai/test.php');
 
 echo $OUTPUT->header();
-echo "GPT status: " . $services['GPT'] . "</br>";
-echo "DALL-E status: " . $services['DALL-E'] . "</br>";
-echo "Stable Diffusion status: " . $services['Stable_Diffusion'] . "</br>";
+?>
+
+<table>
+    <tr>
+        <th>GPT status</th>
+        <td><?php echo $gptinfo; ?></td>
+    </tr>
+    <tr>
+        <th>DALL-E status</th>
+        <td><?php echo $dalleinfo; ?></td>
+    </tr>
+    <tr>
+        <th>Stable Diffusion status</th>
+        <td><?php echo $stablediffusioninfo; ?></td>
+    </tr>
+</table>
+
+<?php
 echo $OUTPUT->footer();
+?>

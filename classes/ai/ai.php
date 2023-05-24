@@ -21,6 +21,7 @@
  * @author Olgierd Dziminski
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace local_ai_connector\ai;
 
 use curl;
@@ -29,6 +30,9 @@ use moodle_exception;
 class ai {
     const OPENAI_CHATGPT_CHAT_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
     const OPENAI_CHATGPT_COMPLETION_ENDPOINT = 'https://api.openai.com/v1/completions';
+    const DALLE_IMAGES_EDIT_ENDPOINT = 'https://api.openai.com/v1/images/edits';
+    const DALLE_IMAGES_GENERATION_ENDPOINT = 'https://api.openai.com/v1/images/generations';
+    const STABLE_DIFFUSION_ENDPOINT = 'https://api.deepai.org/api/stable-diffusion';
 
     private string $openaiapikey;
 
@@ -43,17 +47,21 @@ class ai {
     private ?string $error;
 
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->openaiapikey = get_config('local_ai_connector', 'openaiapikey');
         $this->deepaiapikey = get_config('local_ai_connector', 'deepaiapikey');
         $this->model = get_config('local_ai_connector', 'model');
         $this->temperature = get_config('local_ai_connector', 'temperature', 0.5);
     }
 
-    private function make_request($url, $data, $apikey) {
+    /**
+     * @throws moodle_exception
+     */
+    private function make_request($url, $data, $apikey)
+    {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
-        $this->error = null;
 
         if (empty($apikey)) {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
@@ -72,8 +80,9 @@ class ai {
         ];
 
         $response = $curl->post($url, json_encode($data), $options);
-
-        // TODO basic validation and check that the response is valid JSON.
+        if (json_decode($response) == null){
+            return ['curl_error' => $response];
+        }
         return json_decode($response, true);
     }
 
@@ -90,17 +99,10 @@ class ai {
 
         $result = $this->make_request($this::OPENAI_CHATGPT_COMPLETION_ENDPOINT, $data, $this->openaiapikey);
 
-        // Check if error is there.
-        if (isset($result['error'])) {
-
-            return false;
-        }
-
         if (isset($result['choices'])) {
             return $result['choices'][0]['text'];
         } else {
-            throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
-                '[ChatGPT] Prompt error occurred: ' . $result['error']['message']);
+            return $result;
         }
     }
 
@@ -112,18 +114,16 @@ class ai {
 
         if (isset($image)) {
             $data['image'] = $image;
-            $url = "https://api.openai.com/v1/images/edits";
+            $url = self::DALLE_IMAGES_EDIT_ENDPOINT;
         } else {
-            $url = "https://api.openai.com/v1/images/generations";
+            $url = self::DALLE_IMAGES_GENERATION_ENDPOINT;
         }
 
         $result = $this->make_request($url, json_decode(json_encode($data)), $this->openaiapikey);
-
-        if (isset($result['data'])) {
-            return $result['data'][0]['url'];
-        } else {
-            throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
-                '[DALL-E] Prompt error occurred: ' . $result['error']['message']);
+        if (isset($result)) {
+            if (isset($result['data'])) {
+                return $result['data'][0]['url'];
+            } else return $result['error'] ?? $result;
         }
     }
 
@@ -141,16 +141,13 @@ class ai {
             'api-key: ' . $this->deepaiapikey,
         ]);
         $curl->setOpt(CURLOPT_RETURNTRANSFER);
-        $result = $curl->post('https://api.deepai.org/api/stable-diffusion', ['text' => $prompttext]);
+        $result = $curl->post(self::STABLE_DIFFUSION_ENDPOINT, ['text' => $prompttext]);
+        if (json_decode($result) == null){
+            return ['curl_error' => $result];
+        }
 
         $result = json_decode($result);
-
-        if (isset($result->output_url)) {
-            return $result->output_url;
-        } else {
-            throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
-                "[Stable Diffusion] Prompt error occurred: . $result->status");
-        }
+        return $result;
     }
 
 }
