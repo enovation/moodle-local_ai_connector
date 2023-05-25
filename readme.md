@@ -2,12 +2,12 @@
 The ai class is part of the local_ai_connector namespace and provides functionality for interacting with AI models and making requests to AI APIs.
 
 # Class Properties
-**$apikey**: Stores the API key required for authentication with AI services.
-**$model:** Represents the AI model used for generating responses.
-**$temperature:** Controls the randomness of generated responses.
-**$max_length**: Specifies the maximum length of the generated response.
-**$top_p:** Determines the cumulative probability cutoff for the generated response.
-**$frequency_penalty**: Adjusts the penalty for frequently used tokens in the generated response.
+**$apikey**: Stores the API key required for authentication with AI services.<br />
+**$model:** Represents the AI model used for generating responses. <br />
+**$temperature:** Controls the randomness of generated responses. <br />
+**$max_length**: Specifies the maximum length of the generated response. <br />
+**$top_p:** Determines the cumulative probability cutoff for the generated response.<br />
+**$frequency_penalty**: Adjusts the penalty for frequently used tokens in the generated response. <br />
 **$presence_penalty:** Adjusts the penalty for tokens already present in the prompt in the generated response.
 
 # API Keys:
@@ -36,15 +36,15 @@ $diffusionUrl = $ai->prompt_stable_diffusion('Generate an image using Stable Dif
 ## Configuration Settings
 To configure the AI class and customize its behavior, you can use the following settings:
 
-**OpenAI API Key**: Provide the API key for authentication with OpenAI services.
-**Stable Diffusion API Key**: Provide the API key for authentication with Stable Diffusion AI services.
-**Source of Truth:** Specify the source of truth for the AI model.
-**Model**: Select the AI model to be used for generating responses. The default value is 'text-babbage-001'.
-**Temperature**: Set the temperature value to control the randomness of generated responses.
-**Max Length**: Set the maximum length of the generated response.
-**Top P**: Set the cumulative probability cutoff for the generated response.
-**Frequency Penalty**: Adjust the penalty for frequently used tokens in the generated response.
-**Presence Penalty**: Adjust the penalty for tokens already present in the prompt in the generated response.
+**OpenAI API Key**: Provide the API key for authentication with OpenAI services. <br />
+**Stable Diffusion API Key**: Provide the API key for authentication with Stable Diffusion AI services. <br />
+**Source of Truth:** Specify the source of truth for the AI model. <br />
+**Model**: Select the AI model to be used for generating responses. The default value is 'text-babbage-001'. <br />
+**Temperature**: Set the temperature value to control the randomness of generated responses.<br />
+**Max Length**: Set the maximum length of the generated response. <br />
+**Top P**: Set the cumulative probability cutoff for the generated response. <br />
+**Frequency Penalty**: Adjust the penalty for frequently used tokens in the generated response. <br />
+**Presence Penalty**: Adjust the penalty for tokens already present in the prompt in the generated response. <br />
 Please note that the availability and functionality of these settings may depend on the specific AI models and APIs used.
 
 ### Error Handling
