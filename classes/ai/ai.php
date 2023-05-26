@@ -117,7 +117,7 @@ class ai {
      * @param string $model The model name.
      * @return string The prompt URL.
      */
-    private function get_prompt_url($model) {
+    private function get_prompt_url($model) : string {
         $chatcompletionmodels = ["gpt-4", "gpt-4-0314", "gpt-4-32k", "gpt-4-32k-0314", "gpt-3.5-turbo", "gpt-3.5-turbo-0301"];
 
         if (in_array($model, $chatcompletionmodels)) {
@@ -134,7 +134,7 @@ class ai {
      * @param string $prompttext The prompt text.
      * @return array The prompt data.
      */
-    private function get_prompt_data($url, $prompttext) {
+    private function get_prompt_data($url, $prompttext) : array {
         if ($url == self::OPENAI_CHATGPT_CHAT_ENDPOINT) {
             $data = [
                 'model' => $this->model,
@@ -213,3 +213,4 @@ class ai {
     }
 
 }
+
