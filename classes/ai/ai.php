@@ -41,9 +41,6 @@ class ai {
     private $model;
     private float $temperature;
 
-    /**
-     * @var string Last query error.
-     */
 
 
     public function __construct() {
@@ -53,10 +50,17 @@ class ai {
         $this->temperature = get_config('local_ai_connector', 'temperature', 0.5);
     }
 
+
     /**
-     * @throws moodle_exception
+     * Makes a request to the specified URL with the given data and API key.
+     *
+     * @param string $url The URL to make the request to.
+     * @param array $data The data to send with the request.
+     * @param string $apikey The API key to authenticate the request.
+     * @return array The response from the request.
+     * @throws moodle_exception If the API key is empty.
      */
-    private function make_request($url, $data, $apikey): array {
+    private function make_request($url, $data, $apikey) {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
 
@@ -83,22 +87,37 @@ class ai {
         return json_decode($response, true);
     }
 
-    public function prompt_completion($prompttext): string|array {
+    /**
+     * Generates a completion for the given prompt text.
+     *
+     * @param string $prompttext The prompt text.
+     * @return string|array The generated completion or null if the model is empty.
+     * @throws moodle_exception If the model is empty.
+     */
+    public function prompt_completion($prompttext) {
         if (empty($this->model)) {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null, 'Empty query model.');
         }
-        $url = self::get_prompt_url($this->model);
-        $data = self::get_prompt_data($url, $prompttext);
+        $url = $this->get_prompt_url($this->model);
+        $data = $this->get_prompt_data($url, $prompttext);
         $result = $this->make_request($url, $data, $this->openaiapikey);
 
-        if (isset($result['choices'])) {
+        if (isset($result['choices'][0]['text'])) {
             return $result['choices'][0]['text'];
+        } else if (isset($result['choices'][0]['message'])) {
+            return $result['choices'][0]['message'];
         } else {
             return $result;
         }
     }
 
-    private function get_prompt_url($model): string {
+    /**
+     * Retrieves the appropriate prompt URL based on the model.
+     *
+     * @param string $model The model name.
+     * @return string The prompt URL.
+     */
+    private function get_prompt_url($model) {
         $chatcompletionmodels = ["gpt-4", "gpt-4-0314", "gpt-4-32k", "gpt-4-32k-0314", "gpt-3.5-turbo", "gpt-3.5-turbo-0301"];
 
         if (in_array($model, $chatcompletionmodels)) {
@@ -108,7 +127,14 @@ class ai {
         }
     }
 
-    private function get_prompt_data($url, $prompttext): array {
+    /**
+     * Retrieves the data for the prompt based on the URL and prompt text.
+     *
+     * @param string $url The prompt URL.
+     * @param string $prompttext The prompt text.
+     * @return array The prompt data.
+     */
+    private function get_prompt_data($url, $prompttext) {
         if ($url == self::OPENAI_CHATGPT_CHAT_ENDPOINT) {
             $data = [
                 'model' => $this->model,
@@ -127,7 +153,14 @@ class ai {
         return $data;
     }
 
-    public function prompt_dalle($prompttext, $image = null): string|array {
+    /**
+     * Generates a response for the prompt text and optional image.
+     *
+     * @param string $prompttext The prompt text.
+     * @param mixed|null $image The optional image data.
+     * @return string|array|null The generated response or null if the result is not available.
+     */
+    public function prompt_dalle($prompttext, $image = null) {
         $data = [
             'prompt' => $prompttext,
             'size' => "256x256" // TODO: Let users choose desired dimensions: 256x256, 512x512, or 1024x1024.
@@ -150,7 +183,14 @@ class ai {
         }
     }
 
-    public function prompt_stable_diffusion($prompttext): array {
+    /**
+     * Performs stable diffusion with the given prompt text.
+     *
+     * @param string $prompttext The prompt text.
+     * @return string|array The stable diffusion result.
+     * @throws moodle_exception If the deep AI key is empty.
+     */
+    public function prompt_stable_diffusion($prompttext) {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
 
@@ -173,4 +213,3 @@ class ai {
     }
 
 }
-

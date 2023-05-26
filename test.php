@@ -66,9 +66,9 @@ if ($dalleresult && !isset($dalleresult['curl_error'])) {
     $dalleinfo = "Inactive 🔴, cURL error: " . $dalleresult['curl_error'];
 }
 
-if ($stablediffusionresult && !isset($stablediffusionresult->curl_error)) {
-    if (isset($stablediffusionresult->status)) {
-        $stablediffusioninfo = "Inactive 🔴, error message: " . $stablediffusionresult->status;
+if ($stablediffusionresult && !isset($stablediffusionresult['curl_error'])) {
+    if (isset($stablediffusionresult['status'])) {
+        $stablediffusioninfo = "Inactive 🔴, error message: " . $stablediffusionresult['status'];
     } else {
         $stablediffusioninfo = "Active 🟢</br>";
     }
