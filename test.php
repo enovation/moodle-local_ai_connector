@@ -45,35 +45,35 @@ $stablediffusionresult = $ai->prompt_stable_diffusion('Happy chihuahas');
 
 if ($gptresult && !isset($gptresult['curl_error'])) {
     if (isset($gptresult['error'])) {
-        $gptinfo = "Inactive </br> Error message: " . $gptresult['error']['message'] . "</br>";
+        $gptinfo = "Inactive 🔴</br> Error message: " . $gptresult['error']['message'] . "</br>";
         $gptinfo .= "Error type: " . $gptresult['error']['type'] . "</br>";
         $gptinfo .= "Param: " . $gptresult['error']['param'] . "</br>";
         $gptinfo .= "Code: " . $gptresult['error']['code'] . "</br>";
     } else {
-        $gptinfo = "Active";
+        $gptinfo = "Active 🟢";
     }
 } else {
-    $gptinfo = "Inactive, cURL error: " . $gptresult['curl_error'];
+    $gptinfo = "Inactive 🔴, cURL error: " . $gptresult['curl_error'];
 }
 
 if ($dalleresult && !isset($dalleresult['curl_error'])) {
     if (isset($dalleresult['error'])) {
-        $dalleinfo = "Inactive, error message: " . $dalleresult['error'];
+        $dalleinfo = "Inactive 🔴, error message: " . $dalleresult['error'];
     } else {
-        $dalleinfo = "Active </br>";
+        $dalleinfo = "Active 🟢</br>";
     }
 } else {
-    $dalleinfo = "Inactive, cURL error: " . $dalleresult['curl_error'];
+    $dalleinfo = "Inactive 🔴, cURL error: " . $dalleresult['curl_error'];
 }
 
 if ($stablediffusionresult && !isset($stablediffusionresult->curl_error)) {
     if (isset($stablediffusionresult->status)) {
-        $stablediffusioninfo = "Inactive, error message: " . $stablediffusionresult->status;
+        $stablediffusioninfo = "Inactive 🔴, error message: " . $stablediffusionresult->status;
     } else {
-        $stablediffusioninfo = "Active </br>";
+        $stablediffusioninfo = "Active 🟢</br>";
     }
 } else {
-    $stablediffusioninfo = "Inactive, cURL error: " . $stablediffusionresult['curl_error'];
+    $stablediffusioninfo = "Inactive 🔴, cURL error: " . $stablediffusionresult['curl_error'];
 }
 
 
@@ -82,20 +82,32 @@ $PAGE->set_url('/local/ai_connector/classes/ai/test.php');
 echo $OUTPUT->header();
 ?>
 
-<table>
-    <tr>
-        <th>GPT status</th>
-        <td><?php echo $gptinfo; ?></td>
-    </tr>
-    <tr>
-        <th>DALL-E status</th>
-        <td><?php echo $dalleinfo; ?></td>
-    </tr>
-    <tr>
-        <th>Stable Diffusion status</th>
-        <td><?php echo $stablediffusioninfo; ?></td>
-    </tr>
-</table>
+    <style>
+        table {
+            border: 1px solid black;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+    </style>
+
+    <table>
+        <tr>
+            <th>GPT status</th>
+            <td><?php echo $gptinfo; ?></td>
+        </tr>
+        <tr>
+            <th>DALL-E status</th>
+            <td><?php echo $dalleinfo; ?></td>
+        </tr>
+        <tr>
+            <th>Stable Diffusion status</th>
+            <td><?php echo $stablediffusioninfo; ?></td>
+        </tr>
+    </table>
+
 
 <?php
 echo $OUTPUT->footer();
+
