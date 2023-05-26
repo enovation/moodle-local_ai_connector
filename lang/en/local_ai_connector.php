@@ -39,3 +39,9 @@ $string['deepaisettings_help'] = 'Settings for DeepAI (deepai.org) services (Sta
 $string['deepaiapikey'] = 'DeepAI API Key';
 $string['deepaiapikey_desc'] = 'DeepAI API Key';
 
+// Privacy API.
+
+$string['privacy:metadata:ai_connector'] = 'In order to generate text or image, user needs to pass prompt text and/or image.';
+$string['privacy:metadata:ai_connector:prompttext'] = 'User\'s prompt text is being sent to API services to generate response.';
+$string['privacy:metadata:ai_connector:image'] = 'Image is an optional argument you can pass to make a base for generated image.';
+
