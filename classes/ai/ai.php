@@ -56,7 +56,7 @@ class ai {
     /**
      * @throws moodle_exception
      */
-    private function make_request($url, $data, $apikey) {
+    private function make_request($url, $data, $apikey): array {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
 
@@ -83,12 +83,12 @@ class ai {
         return json_decode($response, true);
     }
 
-    public function prompt_completion($prompttext) {
+    public function prompt_completion($prompttext): string|array {
         if (empty($this->model)) {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null, 'Empty query model.');
         }
-        $url = self::getprompturl($this->model);
-        $data = self::getpromptdata($url, $prompttext);
+        $url = self::get_prompt_url($this->model);
+        $data = self::get_prompt_data($url, $prompttext);
         $result = $this->make_request($url, $data, $this->openaiapikey);
 
         if (isset($result['choices'])) {
@@ -98,7 +98,7 @@ class ai {
         }
     }
 
-    private function getprompturl($model) {
+    private function get_prompt_url($model): string {
         $chatcompletionmodels = ["gpt-4", "gpt-4-0314", "gpt-4-32k", "gpt-4-32k-0314", "gpt-3.5-turbo", "gpt-3.5-turbo-0301"];
 
         if (in_array($model, $chatcompletionmodels)) {
@@ -108,7 +108,7 @@ class ai {
         }
     }
 
-    private function getpromptdata($url, $prompttext) {
+    private function get_prompt_data($url, $prompttext): array {
         if ($url == self::OPENAI_CHATGPT_CHAT_ENDPOINT) {
             $data = [
                 'model' => $this->model,
@@ -127,7 +127,7 @@ class ai {
         return $data;
     }
 
-    public function prompt_dalle($prompttext, $image = null) {
+    public function prompt_dalle($prompttext, $image = null): string|array {
         $data = [
             'prompt' => $prompttext,
             'size' => "256x256" // TODO: Let users choose desired dimensions: 256x256, 512x512, or 1024x1024.
@@ -150,7 +150,7 @@ class ai {
         }
     }
 
-    public function prompt_stable_diffusion($prompttext) {
+    public function prompt_stable_diffusion($prompttext): array {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
 
@@ -169,7 +169,8 @@ class ai {
             return ['curl_error' => $result];
         }
 
-        return json_decode($result);
+        return json_decode($result, true);
     }
 
 }
+
