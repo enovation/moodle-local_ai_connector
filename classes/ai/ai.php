@@ -79,12 +79,17 @@ class ai {
             "CURLOPT_RETURNTRANSFER" => true,
             "CURLOPT_HTTPHEADER" => $headers,
         ];
+        $start = microtime(true);
 
         $response = $curl->post($url, json_encode($data), $options);
+
+        $end = microtime(true);
+        $executiontime = round($end - $start, 2);
+
         if (json_decode($response) == null) {
-            return ['curl_error' => $response];
+            return ['curl_error' => $response, 'execution_time' => $executiontime];
         }
-        return json_decode($response, true);
+        return ['response' => json_decode($response, true), 'execution_time' => $executiontime];
     }
 
     /**
@@ -195,8 +200,7 @@ class ai {
         require_once($CFG->libdir . '/filelib.php');
 
         if (empty($this->deepaiapikey)) {
-            throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
-                'Empty Stable Diffusion API key.');
+            return ['noapikey' => 'DeepAI\'s API key has not been set.', 'execution_time' => '-'];
         }
         $curl = new curl();
 
@@ -204,13 +208,18 @@ class ai {
             'api-key: ' . $this->deepaiapikey,
         ]);
         $curl->setOpt(CURLOPT_RETURNTRANSFER);
+        $start = microtime(true);
+
         $result = $curl->post(self::STABLE_DIFFUSION_ENDPOINT, ['text' => $prompttext]);
+
+        $end = microtime(true);
+        $executiontime = round($end - $start, 2);
+
         if (json_decode($result) == null) {
-            return ['curl_error' => $result];
+            return ['curl_error' => $result, 'execution_time' => $executiontime];
         }
 
-        return json_decode($result, true);
+        return ['response' => json_decode($result, true), 'execution_time' => $executiontime];
     }
 
 }
-

@@ -40,7 +40,7 @@ global $CFG, $PAGE;
 
 $ai = new ai\ai();
 $gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
-$dalleresult = $ai->prompt_dalle('angry goose');
+$dalleresult = $ai->prompt_dgit stalle('angry goose');
 $stablediffusionresult = $ai->prompt_stable_diffusion('Happy chihuahas');
 
 if ($gptresult && !isset($gptresult['curl_error'])) {
@@ -66,16 +66,19 @@ if ($dalleresult && !isset($dalleresult['curl_error'])) {
     $dalleinfo = "Inactive 🔴, cURL error: " . $dalleresult['curl_error'];
 }
 
-if ($stablediffusionresult && !isset($stablediffusionresult['curl_error'])) {
-    if (isset($stablediffusionresult['status'])) {
-        $stablediffusioninfo = "Inactive 🔴, error message: " . $stablediffusionresult['status'];
+if (!isset($stablediffusionresult['noapikey'])) {
+    if ($stablediffusionresult && !isset($stablediffusionresult['curl_error'])) {
+        if (isset($stablediffusionresult['status'])) {
+            $stablediffusioninfo = "Inactive 🔴, error message: " . $stablediffusionresult['status'];
+        } else {
+            $stablediffusioninfo = "Active 🟢</br>";
+        }
     } else {
-        $stablediffusioninfo = "Active 🟢</br>";
+        $stablediffusioninfo = "Inactive 🔴, cURL error: " . $stablediffusionresult['curl_error'];
     }
 } else {
-    $stablediffusioninfo = "Inactive 🔴, cURL error: " . $stablediffusionresult['curl_error'];
+    $stablediffusioninfo = 'Inactive 🔴, ' . $stablediffusionresult['noapikey'];
 }
-
 
 $PAGE->set_url('/local/ai_connector/classes/ai/test.php');
 
@@ -92,22 +95,26 @@ echo $OUTPUT->header();
         }
     </style>
 
+
     <table>
         <tr>
             <th>GPT status</th>
-            <td><?php echo $gptinfo; ?></td>
-        </tr>
-        <tr>
             <th>DALL-E status</th>
-            <td><?php echo $dalleinfo; ?></td>
+            <th>Stable Diffusion status</th>
         </tr>
         <tr>
-            <th>Stable Diffusion status</th>
+            <td><?php echo $gptinfo; ?></td>
+            <td><?php echo $dalleinfo; ?></td>
             <td><?php echo $stablediffusioninfo; ?></td>
+        </tr>
+        <tr>
+            <td>Execution time: <?php echo $gptresult['execution_time'];?> ms</td>
+            <td>Execution time: <?php echo $dalleresult['execution_time'];?> ms</td>
+            <td>Execution time: <?php echo $stablediffusionresult['execution_time'];?> ms</td>
         </tr>
     </table>
 
 
-<?php
-echo $OUTPUT->footer();
+    <?php
+    echo $OUTPUT->footer();
 
