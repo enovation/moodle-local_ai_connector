@@ -107,5 +107,10 @@ if ($hassiteconfig) {
         ''
     ));
 
+    $url = new moodle_url('../local/ai_connector/test.php');
+    $link = html_writer::link($url, get_string('testaiservices', 'local_ai_connector'));
+    $settings->add(new admin_setting_heading('testaiconfiguration', new lang_string('testaiconfiguration', 'local_ai_connector'),
+        new lang_string('testoutgoingmaildetail', 'admin', $link)));
     $ADMIN->add('localplugins', $settings);
+
 }

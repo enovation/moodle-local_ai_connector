@@ -38,6 +38,8 @@ $string['deepaisettings'] = 'DeepAI settings';
 $string['deepaisettings_help'] = 'Settings for DeepAI (deepai.org) services (Stable Diffusion)';
 $string['deepaiapikey'] = 'DeepAI API Key';
 $string['deepaiapikey_desc'] = 'DeepAI API Key';
+$string['testaiservices'] = 'Test AI connection';
+$string['testaiconfiguration'] = 'Test your configuration to AI services';
 
 // Privacy API.
 
