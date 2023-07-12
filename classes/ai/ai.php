@@ -32,6 +32,7 @@ class ai {
     const OPENAI_CHATGPT_COMPLETION_ENDPOINT = 'https://api.openai.com/v1/completions';
     const DALLE_IMAGES_EDIT_ENDPOINT = 'https://api.openai.com/v1/images/edits';
     const DALLE_IMAGES_GENERATION_ENDPOINT = 'https://api.openai.com/v1/images/generations';
+    const DALLE_IMAGES_VARIATIONS_ENDPOINT = 'https://api.openai.com/v1/images/variations';
     const STABLE_DIFFUSION_ENDPOINT = 'https://api.deepai.org/api/stable-diffusion';
 
     private string $openaiapikey;
@@ -40,8 +41,6 @@ class ai {
 
     private $model;
     private float $temperature;
-
-
 
     public function __construct() {
         $this->openaiapikey = get_config('local_ai_connector', 'openaiapikey');
@@ -159,24 +158,80 @@ class ai {
     }
 
     /**
+     * Generates a response for the prompt text.
+     *
+     * @param string $prompttext The prompt text.
+     * @param int $n The number of responses to generate. Default is 1.
+     * @return string|array|null The generated response or null if the result is not available.
+     */
+    
+    public function prompt_dalle_generation($prompttext, $n = 1) {
+        $data = [
+            'prompt' => $prompttext,
+            'size' => "256x256",
+            'n' => $n
+        ];
+        $url = self::DALLE_IMAGES_GENERATION_ENDPOINT;
+
+        $result = $this->make_request($url, json_decode(json_encode($data)), $this->openaiapikey);
+        if (isset($result)) {
+            if (isset($result['data'])) {
+                return $result['data'][0]['url'];
+            } else {
+                return $result['error'] ?? $result;
+            }
+        }
+    }
+    /**
      * Generates a response for the prompt text and optional image.
      *
      * @param string $prompttext The prompt text.
-     * @param mixed|null $image The optional image data.
+     * @param mixed|null $image The image.
+     * @param mixed|null $mask The mask for editing the image. Default is null.
+     * @param string $size The size of the generated image. Default is '256x256'.
+     * @param int $n The number of responses to generate. Default is 1.
      * @return string|array|null The generated response or null if the result is not available.
      */
-    public function prompt_dalle($prompttext, $image = null) {
+
+    public function prompt_dalle_edit($prompttext, $image, $mask = null, $size = '256x256', $n = 1) {
         $data = [
+            'image' => $image,
+            'mask' => $mask,
             'prompt' => $prompttext,
-            'size' => "256x256" // TODO: Let users choose desired dimensions: 256x256, 512x512, or 1024x1024.
+            'n' => $n,
+            'size' => $size
         ];
 
-        if (isset($image)) {
-            $data['image'] = $image;
-            $url = self::DALLE_IMAGES_EDIT_ENDPOINT;
-        } else {
-            $url = self::DALLE_IMAGES_GENERATION_ENDPOINT;
+        $url = self::DALLE_IMAGES_EDIT_ENDPOINT;
+
+
+        $result = $this->make_request($url, json_decode(json_encode($data)), $this->openaiapikey);
+        if (isset($result)) {
+            if (isset($result['data'])) {
+                return $result['data'][0]['url'];
+            } else {
+                return $result['error'] ?? $result;
+            }
         }
+    }
+
+    /**
+     * Generates a response for the prompt image.
+     *
+     * @param mixed|null $image The image.
+     * @param string $size The size of the generated image. Default is '256x256'.
+     * @param int $n The number of responses to generate. Default is 1.
+     * @return string|array|null The generated response or null if the result is not available.
+     */
+    public function prompt_dalle_variations($image, $size = '256x256', $n = 1) {
+        $data = [
+            'image' => $image,
+            'n' => $n,
+            'size' => $size
+        ];
+
+        $url = self::DALLE_IMAGES_VARIATIONS_ENDPOINT;
+
 
         $result = $this->make_request($url, json_decode(json_encode($data)), $this->openaiapikey);
         if (isset($result)) {
@@ -223,3 +278,4 @@ class ai {
     }
 
 }
+
