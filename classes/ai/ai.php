@@ -59,20 +59,20 @@ class ai {
      * @return array The response from the request.
      * @throws moodle_exception If the API key is empty.
      */
-    private function make_request($url, $data, $apikey) {
+    private function make_request($url, $data, $apikey, $multipart = null) {
         global $CFG;
         require_once($CFG->libdir . '/filelib.php');
-
         if (empty($apikey)) {
             throw new moodle_exception('prompterror', 'local_ai_connector', '', null,
                 'Empty API Key.');
         }
-
-        $headers = [
-            "Authorization: Bearer $apikey",
+        $headers = $multipart ? [
+            "Content-Type: multipart/form-data"
+        ] : [
             "Content-Type: application/json;charset=utf-8"
         ];
 
+        $headers[] = "Authorization: Bearer $apikey";
         $curl = new curl();
         $options = [
             "CURLOPT_RETURNTRANSFER" => true,
@@ -194,25 +194,26 @@ class ai {
      */
 
     public function prompt_dalle_edit($prompttext, $image, $mask = null, $size = '256x256', $n = 1) {
-        $data = [
-            'image' => $image,
-            'mask' => $mask,
-            'prompt' => $prompttext,
-            'n' => $n,
-            'size' => $size
+        $headers = [
+            "Content-Type: multipart/form-data"
         ];
 
-        $url = self::DALLE_IMAGES_EDIT_ENDPOINT;
+        $headers[] = "Authorization: Bearer $this->openaiapikey";
+        $options = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_POSTFIELDS => [
+                'prompt' => $prompttext,
+                'size' => $size,
+                'image' => curl_file_create($image),
+            ]
+        ];
+        $curl = curl_init('https://api.openai.com/v1/images/edits');
 
-
-        $result = $this->make_request($url, json_decode(json_encode($data)), $this->openaiapikey);
-        if (isset($result)) {
-            if (isset($result['data'])) {
-                return $result['data'][0]['url'];
-            } else {
-                return $result['error'] ?? $result;
-            }
-        }
+        curl_setopt_array($curl, $options);
+        $response = curl_exec($curl);
+        $response = json_decode($response, true);
+        var_dump($response); exit;
     }
 
     /**
