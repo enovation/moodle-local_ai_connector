@@ -197,7 +197,6 @@ class ai {
         $headers = [
             "Content-Type: multipart/form-data"
         ];
-
         $headers[] = "Authorization: Bearer $this->openaiapikey";
         $options = [
             CURLOPT_RETURNTRANSFER => true,
@@ -208,40 +207,42 @@ class ai {
                 'image' => curl_file_create($image),
             ]
         ];
-        $curl = curl_init('https://api.openai.com/v1/images/edits');
+        $curl = curl_init(self::DALLE_IMAGES_EDIT_ENDPOINT);
 
         curl_setopt_array($curl, $options);
         $response = curl_exec($curl);
         $response = json_decode($response, true);
-        var_dump($response); exit;
+        return $response;
     }
-
     /**
-     * Generates a response for the prompt image.
+     * Generates a variation of a given image.
      *
+     * @param string $prompttext The prompt text.
      * @param mixed|null $image The image.
      * @param string $size The size of the generated image. Default is '256x256'.
      * @param int $n The number of responses to generate. Default is 1.
      * @return string|array|null The generated response or null if the result is not available.
      */
+
     public function prompt_dalle_variations($image, $size = '256x256', $n = 1) {
-        $data = [
-            'image' => $image,
-            'n' => $n,
-            'size' => $size
+        $headers = [
+            "Content-Type: multipart/form-data"
         ];
+var_dump(43242);
+        $headers[] = "Authorization: Bearer $this->openaiapikey";
+        $options = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_POSTFIELDS => [
+                'size' => $size,
+                'image' => curl_file_create($image),
+            ]
+        ];
+        $curl = curl_init(self::DALLE_IMAGES_VARIATIONS_ENDPOINT);
 
-        $url = self::DALLE_IMAGES_VARIATIONS_ENDPOINT;
-
-
-        $result = $this->make_request($url, json_decode(json_encode($data)), $this->openaiapikey);
-        if (isset($result)) {
-            if (isset($result['data'])) {
-                return $result['data'][0]['url'];
-            } else {
-                return $result['error'] ?? $result;
-            }
-        }
+        curl_setopt_array($curl, $options);
+        $response = curl_exec($curl);
+        return json_decode($response, true);
     }
 
     /**

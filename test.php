@@ -39,16 +39,12 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG, $PAGE;
 
 $ai = new ai\ai();
-//
-//$tmp_file = $_FILES['image']['tmp_name'];
-//$file_name = basename($_FILES['image']['name']);
-//$image = curl_file_create($tmp_file, $_FILES['image']['type'], $file_name);
-//$editresult = $ai->prompt_dalle_edit('test', $image);
-//var_dump($editresult);
-//exit;
+
 $gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
 $dalleresult = $ai->prompt_dalle_generation('angry goose');
 $stablediffusionresult = $ai->prompt_stable_diffusion('Happy chihuahas');
+$editresult = $ai->prompt_dalle_edit('Spongebob crying from a laughter','1.png');
+$variationsresult = $ai->prompt_dalle_variations('1.png');
 
 if ($gptresult && !isset($gptresult['curl_error'])) {
     if (isset($gptresult['error'])) {
