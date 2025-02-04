@@ -17,7 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_ai_connector';
-$plugin->version = 2023052600;
+$plugin->version = 2024091800;
 $plugin->requires = 2022112800;
-$plugin->release = '4.1.1';
+$plugin->release = '5.0';
 

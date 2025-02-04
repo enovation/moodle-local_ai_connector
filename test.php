@@ -19,105 +19,171 @@
  *
  * @package    local_ai_connect
  * @copyright  2023 Enovation
- * @author Olgierd Dziminski
+ * @author      Olgierd Dziminski
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace local_ai_connector;
-
 require_once(__DIR__ . '/../../config.php');
 
 use context_system;
-
+use local_ai_connector\openai\openai;
+use moodle_exception;
+defined('MOODLE_INTERNAL') || die();
+global $USER, $PAGE;
 require_login();
 if (!is_siteadmin($USER)) {
     throw new require_login_exception();
 }
 $PAGE->set_context(context_system::instance());
-
 defined('MOODLE_INTERNAL') || die();
-global $CFG, $PAGE;
-
-$ai = new ai\ai();
-
-$gptresult = $ai->prompt_completion('Explain me quantum physics like I am five.');
-$dalleresult = $ai->prompt_dalle_generation('angry goose');
-$stablediffusionresult = $ai->prompt_stable_diffusion('Happy chihuahas');
-$editresult = $ai->prompt_dalle_edit('Spongebob crying from a laughter','1.png');
-$variationsresult = $ai->prompt_dalle_variations('1.png');
-
-if ($gptresult && !isset($gptresult['curl_error'])) {
-    if (isset($gptresult['error'])) {
-        $gptinfo = "Inactive 🔴</br> Error message: " . $gptresult['error']['message'] . "</br>";
-        $gptinfo .= "Error type: " . $gptresult['error']['type'] . "</br>";
-        $gptinfo .= "Param: " . $gptresult['error']['param'] . "</br>";
-        $gptinfo .= "Code: " . $gptresult['error']['code'] . "</br>";
-    } else {
-        $gptinfo = "Active 🟢";
-    }
-} else {
-    $gptinfo = "Inactive 🔴, cURL error: " . $gptresult['curl_error'];
-}
-
-if ($dalleresult && !isset($dalleresult['curl_error'])) {
-    if (isset($dalleresult['error'])) {
-        $dalleinfo = "Inactive 🔴, error message: " . $dalleresult['error'];
-    } else {
-        $dalleinfo = "Active 🟢</br>";
-    }
-} else {
-    $dalleinfo = "Inactive 🔴, cURL error: " . $dalleresult['curl_error'];
-}
-
-if (!isset($stablediffusionresult['noapikey'])) {
-    if ($stablediffusionresult && !isset($stablediffusionresult['curl_error'])) {
-        if (isset($stablediffusionresult['status'])) {
-            $stablediffusioninfo = "Inactive 🔴, error message: " . $stablediffusionresult['status'];
-        } else {
-            $stablediffusioninfo = "Active 🟢</br>";
-        }
-    } else {
-        $stablediffusioninfo = "Inactive 🔴, cURL error: " . $stablediffusionresult['curl_error'];
-    }
-} else {
-    $stablediffusioninfo = 'Inactive 🔴, ' . $stablediffusionresult['noapikey'];
-}
-
 $PAGE->set_url('/local/ai_connector/classes/ai/test.php');
-
 echo $OUTPUT->header();
-?>
 
-    <style>
-        table {
-            border: 1px solid black;
+$openai = new openai();
+$test = new LocalAIConnector($openai);
+
+$results['data'][] = $test->assistants();
+$results['data'][] = $test->audio();
+$results['data'][] = $test->chat();
+$results['data'][] = $test->embeddings();
+$results['data'][] = $test->files();
+$results['data'][] = $test->fine_tuning();
+$results['data'][] = $test->images();
+$results['data'][] = $test->messages();
+$results['data'][] = $test->models();
+$results['data'][] = $test->moderations();
+$results['data'][] = $test->runs();
+$results['data'][] = $test->threads();
+
+echo $OUTPUT->render_from_template('local_ai_connector/test/openai', $results);
+echo $OUTPUT->footer();
+
+class LocalAIConnector {
+    private $openai;
+
+    public function __construct($openai) {
+        $this->openai = $openai;
+    }
+
+    public function assistants(): array {
+        return $this->perform_api_test('Assistants', function() {
+            return $this->openai->assistants()->list();
+        });
+    }
+
+    private function perform_api_test($endpoint, $callback): array {
+        try {
+            $response = call_user_func($callback);
+
+            if (!$response) {
+                throw new moodle_exception('No response');
+            }
+
+            if (isset($response['error'])) {
+                throw new moodle_exception($response['error']['message']);
+            }
+
+            return [
+                    'endpoint' => $endpoint,
+                    'status' => '🟢',
+                    'response' => json_encode($response, JSON_PRETTY_PRINT),
+            ];
+        } catch (moodle_exception $e) {
+            return [
+                    'endpoint' => $endpoint,
+                    'status' => '🔴',
+                    'response' => $e->getMessage(),
+            ];
         }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-        }
-    </style>
+    }
 
+    public function audio(): array {
+        return $this->perform_api_test('Audio', function() {
+            return $this->openai->audio()->create_speech([
+                    'model' => 'tts-1',
+                    'input' => 'Hello, this is test message.',
+                    'voice' => 'echo',
+            ]);
+        });
+    }
 
-    <table>
-        <tr>
-            <th>GPT status</th>
-            <th>DALL-E status</th>
-            <th>Stable Diffusion status</th>
-        </tr>
-        <tr>
-            <td><?php echo $gptinfo; ?></td>
-            <td><?php echo $dalleinfo; ?></td>
-            <td><?php echo $stablediffusioninfo; ?></td>
-        </tr>
-        <tr>
-            <td>Execution time: <?php echo $gptresult['execution_time'];?> ms</td>
-            <td>Execution time: <?php echo $dalleresult['execution_time'];?> ms</td>
-            <td>Execution time: <?php echo $stablediffusionresult['execution_time'];?> ms</td>
-        </tr>
-    </table>
+    public function chat(): array {
+        return $this->perform_api_test('Chat', function() {
+            return $this->openai->chat()->create_completion([
+                    'model' => 'gpt-4',
+                    'messages' => [
+                            [
+                                    'role' => 'user',
+                                    'content' => 'Hello, this is test message.',
+                            ],
+                    ],
+            ]);
+        });
+    }
 
+    public function embeddings(): array {
+        return $this->perform_api_test('Embeddings', function() {
+            return $this->openai->embeddings()->create([
+                    'model' => 'text-embedding-ada-002',
+                    'input' => 'Hello, this is test message.',
+            ]);
+        });
+    }
 
-    <?php
-    echo $OUTPUT->footer();
+    public function files(): array {
+        return $this->perform_api_test('Files', function() {
+            return $this->openai->files()->list();
+        });
+    }
 
+    public function fine_tuning(): array {
+        return $this->perform_api_test('Fine Tuning', function() {
+            return $this->openai->fine_tuning()->list();
+        });
+    }
+
+    public function images(): array {
+        return $this->perform_api_test('Images', function() {
+            return $this->openai->images()->create([
+                    'model' => 'dall-e-3',
+                    'prompt' => 'Small cat on the grass',
+            ]);
+        });
+    }
+
+    public function models(): array {
+        return $this->perform_api_test('Models', function() {
+            return $this->openai->models()->list();
+        });
+    }
+
+    public function moderations(): array {
+        return $this->perform_api_test('Moderations', function() {
+            return $this->openai->moderations()->create([
+                    'input' => 'I want to kill you.',
+            ]);
+        });
+    }
+
+    public function runs(): array {
+        return $this->perform_api_test('Runs', function() {
+            $threadid = $this->openai->threads()->create()['id'];
+            return $this->openai->runs($threadid)->list();
+        });
+    }
+
+    public function threads(): array {
+        return $this->perform_api_test('Threads', function() {
+            return $this->openai->threads()->create();
+        });
+    }
+
+    public function messages(): array {
+        return $this->perform_api_test('Messages', function() {
+            $threadid = $this->openai->threads()->create()['id'];
+            return $this->openai->messages($threadid)->list();
+        });
+    }
+
+}

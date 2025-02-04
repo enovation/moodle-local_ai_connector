@@ -1,0 +1,27 @@
+<h2>OpenAI</h2>
+<div class="card">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Endpoint</th>
+            <th>Status</th>
+            <th>Response</th>
+        </tr>
+        </thead>
+        {{#data}}
+            <tr>
+                <td>{{{endpoint}}}</td>
+                <td>{{{status}}}</td>
+                <td>
+                    <details>
+                        <summary>Click to expand</summary>
+                        <p>{{{response}}}</p>
+                    </details>
+                </td>
+            </tr>
+        {{/data}}
+    </table>
+    {{^data}}
+        <div class="card-body"><p>There are no results.</p></div>
+    {{/data}}
+</div>
